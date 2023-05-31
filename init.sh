@@ -1,25 +1,13 @@
+sudo pip3 install virtualenv
+sudo pip3 install pathlib2
+virtualenv -p python3 venv
+source venv/bin/activate
+pip3 install django
 
-# nginx
-sudo ln -sf /home/box/web/etc/nginx.conf /etc/nginx/sites-enabled/default
+sudo rm -rf /etc/nginx/sites-enabled/default
+
+sudo ln -sf /home/box/web/etc/nginx.conf  /etc/nginx/sites-enabled/nginx_2_1_11.conf
+
 sudo /etc/init.d/nginx restart
 
-# mysql # disable, using default sqlite3
-#sudo /etc/init.d/mysql start
-#sudo mysql -u root -e "CREATE DATABASE stepik_course_mail_ru;"
-#sudo mysql -u root -e "CREATE USER box@'%' IDENTIFIED BY 'box';"
-#sudo mysql -u root -e "GRANT ALL PRIVILEGES ON stepic_course_mail_ru.* TO box@'%' WITH GRANT OPTION;"
-#sudo mysql -u root -e "FLUSH PRIVILEGES;"
-
-# django db
-#cd ask/
-#sudo python3 manage.py makemigrations
-#sudo python3 manage.py migrate
-##sudo python3 manage.py seed qa --number=50
-#cd ..
-
-# gunicorn
-#sudo gunicorn -b "0.0.0.0:8080" hello:print_query &
-cd ask/
-sudo gunicorn -b "0.0.0.0:8080" hello:print_query &
-#sudo gunicorn -b "0.0.0.0:8000" ask.wsgi:application &
-cd ..
+gunicorn -w 2 -c /home/box/web/etc/hello.py hello:app & gunicorn -w 2 -c /home/box/web/etc/qa.py ask.wsgi:application & curl -vv 'http://127.0.0.1:8000/login/'
